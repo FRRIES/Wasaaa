@@ -284,7 +284,7 @@ export default function ConfigScreen() {
 
         {apis.length === 0 && (
           <View style={styles.emptyBox}>
-            <Ionicons name="cloud-offline" size={40} color="#4a5568" />
+            <Cloud size={40} color="#4a5568" weight="duotone" />
             <Text style={styles.emptyText}>No APIs configured</Text>
           </View>
         )}
