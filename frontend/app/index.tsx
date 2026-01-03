@@ -391,7 +391,7 @@ export default function AttackPanel() {
         </View>
 
         {/* Method Picker Modal */}
-        <Modal visible={showMethodPicker} animationType="slide" transparent>
+        <Modal visible={showMethodPicker} animationType="slide" transparent={true}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
