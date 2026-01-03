@@ -82,7 +82,12 @@ export default function ConfigScreen() {
       setApiName('');
       setApiUrl('');
       setShowAddAPI(false);
-      Alert.alert('Success', 'API added successfully');
+      
+      Alert.alert(
+        '✅ API Added Successfully!', 
+        `API "${apiName}" has been added.\n\nYou can now link it to your attack methods.`,
+        [{ text: 'OK', style: 'default' }]
+      );
     } catch (error) {
       Alert.alert('Error', 'Failed to add API');
     }
