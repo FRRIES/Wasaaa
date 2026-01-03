@@ -44,9 +44,12 @@ export default function AttackPanel() {
   const [maxAllowedTime, setMaxAllowedTime] = useState(300);
   const [showMethodPicker, setShowMethodPicker] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  // Reload data every time this screen gets focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadData();
+    }, [])
+  );
 
   const loadData = async () => {
     try {
