@@ -337,26 +337,15 @@ export default function AttackPanel() {
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Método</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={selectedMethod}
-                onValueChange={setSelectedMethod}
-                style={styles.picker}
-                dropdownIconColor="#00d4ff"
-              >
-                {methods.length === 0 ? (
-                  <Picker.Item label="No hay métodos disponibles" value="" />
-                ) : (
-                  methods.map((method) => (
-                    <Picker.Item
-                      key={method.id}
-                      label={method.name}
-                      value={method.name}
-                    />
-                  ))
-                )}
-              </Picker>
-            </View>
+            <TouchableOpacity
+              style={styles.pickerButton}
+              onPress={() => setShowMethodPicker(true)}
+            >
+              <Text style={styles.pickerButtonText}>
+                {selectedMethod || 'Seleccionar método'}
+              </Text>
+              <Ionicons name="chevron-down" size={20} color="#00d4ff" />
+            </TouchableOpacity>
           </View>
 
           <TouchableOpacity
