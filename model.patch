@@ -1,10 +1,10 @@
-diff --git a/frontend/app/index.tsx b/frontend/app/index.tsx
-index af48d8e..e705606 100644
---- a/frontend/app/index.tsx
-+++ b/frontend/app/index.tsx
-@@ -549,6 +549,12 @@ const styles = StyleSheet.create({
-   inputGroup: {
-     marginBottom: 16,
+diff --git a/frontend/app/config.tsx b/frontend/app/config.tsx
+index b767682..a500a78 100644
+--- a/frontend/app/config.tsx
++++ b/frontend/app/config.tsx
+@@ -609,6 +609,12 @@ const styles = StyleSheet.create({
+     textTransform: 'uppercase',
+     letterSpacing: 0.5,
    },
 +  labelRow: {
 +    flexDirection: 'row',
@@ -12,6 +12,28 @@ index af48d8e..e705606 100644
 +    gap: 6,
 +    marginBottom: 8,
 +  },
-   label: {
-     color: '#8b92a8',
-     fontSize: 13,
+   input: {
+     backgroundColor: '#0a0e1a',
+     borderWidth: 1,
+diff --git a/model.patch b/model.patch
+index a56ed85..e69de29 100644
+--- a/model.patch
++++ b/model.patch
+@@ -1,17 +0,0 @@
+-diff --git a/frontend/app/index.tsx b/frontend/app/index.tsx
+-index af48d8e..e705606 100644
+---- a/frontend/app/index.tsx
+-+++ b/frontend/app/index.tsx
+-@@ -549,6 +549,12 @@ const styles = StyleSheet.create({
+-   inputGroup: {
+-     marginBottom: 16,
+-   },
+-+  labelRow: {
+-+    flexDirection: 'row',
+-+    alignItems: 'center',
+-+    gap: 6,
+-+    marginBottom: 8,
+-+  },
+-   label: {
+-     color: '#8b92a8',
+-     fontSize: 13,
