@@ -368,7 +368,7 @@ export default function ConfigScreen() {
       </View>
 
       {/* Modals */}
-      <Modal visible={showAddAPI} animationType="slide" transparent>
+      <Modal visible={showAddAPI} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
