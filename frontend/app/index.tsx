@@ -342,9 +342,10 @@ export default function AttackPanel() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>
-              <Ionicons name="hammer-outline" size={14} color="#8b92a8" /> Attack Method
-            </Text>
+            <View style={styles.labelRow}>
+              <Ionicons name="hammer-outline" size={14} color="#8b92a8" />
+              <Text style={styles.label}>Attack Method</Text>
+            </View>
             <TouchableOpacity
               style={styles.pickerButton}
               onPress={() => setShowMethodPicker(true)}
