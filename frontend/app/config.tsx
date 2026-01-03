@@ -34,7 +34,6 @@ export default function ConfigScreen() {
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [selectedMethodForLink, setSelectedMethodForLink] = useState<Method | null>(null);
 
-  // Form states
   const [apiName, setApiName] = useState('');
   const [apiUrl, setApiUrl] = useState('');
   const [methodName, setMethodName] = useState('');
@@ -65,7 +64,7 @@ export default function ConfigScreen() {
 
   const addAPI = async () => {
     if (!apiName || !apiUrl) {
-      Alert.alert('Error', 'Por favor completa todos los campos requeridos');
+      Alert.alert('Error', 'Please fill all required fields');
       return;
     }
 
@@ -83,17 +82,17 @@ export default function ConfigScreen() {
       setApiName('');
       setApiUrl('');
       setShowAddAPI(false);
-      Alert.alert('Éxito', 'API agregada correctamente');
+      Alert.alert('Success', 'API added successfully');
     } catch (error) {
-      Alert.alert('Error', 'No se pudo agregar la API');
+      Alert.alert('Error', 'Failed to add API');
     }
   };
 
   const deleteAPI = async (id: string) => {
-    Alert.alert('Confirmar', '¿Estás seguro de eliminar esta API?', [
-      { text: 'Cancelar', style: 'cancel' },
+    Alert.alert('Confirm', 'Delete this API?', [
+      { text: 'Cancel', style: 'cancel' },
       {
-        text: 'Eliminar',
+        text: 'Delete',
         style: 'destructive',
         onPress: async () => {
           try {
@@ -101,7 +100,7 @@ export default function ConfigScreen() {
             await AsyncStorage.setItem('apis', JSON.stringify(updatedApis));
             setApis(updatedApis);
           } catch (error) {
-            Alert.alert('Error', 'No se pudo eliminar la API');
+            Alert.alert('Error', 'Failed to delete API');
           }
         },
       },
@@ -110,12 +109,12 @@ export default function ConfigScreen() {
 
   const addMethod = async () => {
     if (!methodName) {
-      Alert.alert('Error', 'Por favor ingresa un nombre de método');
+      Alert.alert('Error', 'Please enter a method name');
       return;
     }
 
     if (apis.length === 0) {
-      Alert.alert('Error', 'Primero debes agregar al menos una API');
+      Alert.alert('Error', 'Add at least one API first');
       return;
     }
 
@@ -123,7 +122,7 @@ export default function ConfigScreen() {
       const newMethod: Method = {
         id: Date.now().toString(),
         name: methodName,
-        apiId: apis[0].id, // Default to first API
+        apiId: apis[0].id,
       };
 
       const updatedMethods = [...methods, newMethod];
@@ -132,17 +131,17 @@ export default function ConfigScreen() {
 
       setMethodName('');
       setShowAddMethod(false);
-      Alert.alert('Éxito', 'Método agregado correctamente');
+      Alert.alert('Success', 'Method added successfully');
     } catch (error) {
-      Alert.alert('Error', 'No se pudo agregar el método');
+      Alert.alert('Error', 'Failed to add method');
     }
   };
 
   const deleteMethod = async (id: string) => {
-    Alert.alert('Confirmar', '¿Estás seguro de eliminar este método?', [
-      { text: 'Cancelar', style: 'cancel' },
+    Alert.alert('Confirm', 'Delete this method?', [
+      { text: 'Cancel', style: 'cancel' },
       {
-        text: 'Eliminar',
+        text: 'Delete',
         style: 'destructive',
         onPress: async () => {
           try {
@@ -150,7 +149,7 @@ export default function ConfigScreen() {
             await AsyncStorage.setItem('methods', JSON.stringify(updatedMethods));
             setMethods(updatedMethods);
           } catch (error) {
-            Alert.alert('Error', 'No se pudo eliminar el método');
+            Alert.alert('Error', 'Failed to delete method');
           }
         },
       },
@@ -177,9 +176,9 @@ export default function ConfigScreen() {
       setShowLinkModal(false);
       setSelectedMethodForLink(null);
       setSelectedApiId('');
-      Alert.alert('Éxito', 'API vinculada correctamente');
+      Alert.alert('Success', 'API linked successfully');
     } catch (error) {
-      Alert.alert('Error', 'No se pudo vincular la API');
+      Alert.alert('Error', 'Failed to link API');
     }
   };
 
@@ -187,20 +186,20 @@ export default function ConfigScreen() {
     try {
       const settings = { maxTimeAllowed: parseInt(maxTime) };
       await AsyncStorage.setItem('settings', JSON.stringify(settings));
-      Alert.alert('Éxito', 'Configuración actualizada');
+      Alert.alert('Success', 'Settings updated');
     } catch (error) {
-      Alert.alert('Error', 'No se pudo actualizar la configuración');
+      Alert.alert('Error', 'Failed to update settings');
     }
   };
 
   const initializeDefaultData = async () => {
     Alert.alert(
-      'Inicializar Datos',
-      '¿Deseas cargar la configuración por defecto? Esto agregará APIs y métodos de ejemplo.',
+      'Load Defaults',
+      'Load default configuration? This will add sample APIs and methods.',
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Inicializar',
+          text: 'Load',
           onPress: async () => {
             try {
               const defaultApi: APIConfig = {
@@ -220,9 +219,9 @@ export default function ConfigScreen() {
               await AsyncStorage.setItem('methods', JSON.stringify(defaultMethods));
 
               loadData();
-              Alert.alert('Éxito', 'Configuración por defecto cargada');
+              Alert.alert('Success', 'Default configuration loaded');
             } catch (error) {
-              Alert.alert('Error', 'No se pudo inicializar la configuración');
+              Alert.alert('Error', 'Failed to initialize configuration');
             }
           },
         },
@@ -232,16 +231,22 @@ export default function ConfigScreen() {
 
   const getApiName = (apiId: string) => {
     const api = apis.find((a) => a.id === apiId);
-    return api ? api.name : 'No vinculada';
+    return api ? api.name : 'Not linked';
   };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Ionicons name="construct" size={32} color="#00ff9d" />
+        <Text style={styles.headerTitle}>CONFIGURATION</Text>
+      </View>
+
       {/* Initialize Button */}
       {apis.length === 0 && methods.length === 0 && (
         <TouchableOpacity style={styles.initButton} onPress={initializeDefaultData}>
-          <Ionicons name="download" size={24} color="#fff" />
-          <Text style={styles.initButtonText}>Cargar Configuración por Defecto</Text>
+          <Ionicons name="download" size={20} color="#000" />
+          <Text style={styles.initButtonText}>Load Default Config</Text>
         </TouchableOpacity>
       )}
 
@@ -249,33 +254,39 @@ export default function ConfigScreen() {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <View style={styles.headerLeft}>
-            <Ionicons name="cloud" size={24} color="#00d4ff" />
-            <Text style={styles.sectionTitle}>APIs</Text>
+            <Ionicons name="cloud" size={20} color="#00ff9d" />
+            <Text style={styles.sectionTitle}>API Endpoints</Text>
           </View>
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => setShowAddAPI(true)}
           >
-            <Ionicons name="add" size={24} color="#fff" />
+            <Ionicons name="add-circle" size={28} color="#00ff9d" />
           </TouchableOpacity>
         </View>
 
         {apis.map((api) => (
           <View key={api.id} style={styles.card}>
             <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>{api.name}</Text>
+              <View style={styles.cardHeader}>
+                <Ionicons name="server" size={18} color="#00ff9d" />
+                <Text style={styles.cardTitle}>{api.name}</Text>
+              </View>
               <Text style={styles.cardSubtitle} numberOfLines={2}>
                 {api.url}
               </Text>
             </View>
-            <TouchableOpacity onPress={() => deleteAPI(api.id)}>
-              <Ionicons name="trash" size={20} color="#ef4444" />
+            <TouchableOpacity onPress={() => deleteAPI(api.id)} style={styles.deleteButton}>
+              <Ionicons name="trash" size={20} color="#ff3366" />
             </TouchableOpacity>
           </View>
         ))}
 
         {apis.length === 0 && (
-          <Text style={styles.emptyText}>No hay APIs configuradas</Text>
+          <View style={styles.emptyBox}>
+            <Ionicons name="cloud-offline" size={40} color="#4a5568" />
+            <Text style={styles.emptyText}>No APIs configured</Text>
+          </View>
         )}
       </View>
 
@@ -283,21 +294,24 @@ export default function ConfigScreen() {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <View style={styles.headerLeft}>
-            <Ionicons name="hammer" size={24} color="#ff6b6b" />
-            <Text style={styles.sectionTitle}>Métodos</Text>
+            <Ionicons name="flash" size={20} color="#ff3366" />
+            <Text style={styles.sectionTitle}>Attack Methods</Text>
           </View>
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => setShowAddMethod(true)}
           >
-            <Ionicons name="add" size={24} color="#fff" />
+            <Ionicons name="add-circle" size={28} color="#ff3366" />
           </TouchableOpacity>
         </View>
 
         {methods.map((method) => (
           <View key={method.id} style={styles.card}>
             <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>{method.name}</Text>
+              <View style={styles.cardHeader}>
+                <Ionicons name="nuclear" size={18} color="#ff3366" />
+                <Text style={styles.cardTitle}>{method.name}</Text>
+              </View>
               <Text style={styles.cardSubtitle}>
                 API: {getApiName(method.apiId)}
               </Text>
@@ -307,17 +321,20 @@ export default function ConfigScreen() {
                 style={styles.linkButton}
                 onPress={() => openLinkModal(method)}
               >
-                <Ionicons name="link" size={20} color="#00d4ff" />
+                <Ionicons name="link" size={20} color="#00ff9d" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => deleteMethod(method.id)}>
-                <Ionicons name="trash" size={20} color="#ef4444" />
+              <TouchableOpacity onPress={() => deleteMethod(method.id)} style={styles.deleteButton}>
+                <Ionicons name="trash" size={20} color="#ff3366" />
               </TouchableOpacity>
             </View>
           </View>
         ))}
 
         {methods.length === 0 && (
-          <Text style={styles.emptyText}>No hay métodos configurados</Text>
+          <View style={styles.emptyBox}>
+            <Ionicons name="hammer" size={40} color="#4a5568" />
+            <Text style={styles.emptyText}>No methods configured</Text>
+          </View>
         )}
       </View>
 
@@ -325,95 +342,99 @@ export default function ConfigScreen() {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <View style={styles.headerLeft}>
-            <Ionicons name="time" size={24} color="#f59e0b" />
-            <Text style={styles.sectionTitle}>Configuración</Text>
+            <Ionicons name="settings" size={20} color="#fbbf24" />
+            <Text style={styles.sectionTitle}>Settings</Text>
           </View>
         </View>
 
         <View style={styles.settingCard}>
-          <Text style={styles.label}>Tiempo Máximo Permitido (segundos)</Text>
+          <Text style={styles.label}>
+            <Ionicons name="time" size={14} color="#8b92a8" /> Max Time Allowed (seconds)
+          </Text>
           <TextInput
             style={styles.input}
             value={maxTime}
             onChangeText={setMaxTime}
             keyboardType="numeric"
             placeholder="300"
-            placeholderTextColor="#6b7280"
+            placeholderTextColor="#4a5568"
           />
           <TouchableOpacity style={styles.saveButton} onPress={updateMaxTime}>
-            <Text style={styles.saveButtonText}>Guardar Configuración</Text>
+            <Ionicons name="checkmark-circle" size={20} color="#000" />
+            <Text style={styles.saveButtonText}>Save Settings</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Add API Modal */}
+      {/* Modals */}
       <Modal visible={showAddAPI} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Agregar Nueva API</Text>
+              <Text style={styles.modalTitle}>Add New API</Text>
               <TouchableOpacity onPress={() => setShowAddAPI(false)}>
-                <Ionicons name="close" size={24} color="#fff" />
+                <Ionicons name="close-circle" size={28} color="#00ff9d" />
               </TouchableOpacity>
             </View>
 
+            <Text style={styles.label}>API Name</Text>
             <TextInput
               style={styles.input}
               value={apiName}
               onChangeText={setApiName}
-              placeholder="Nombre de la API"
-              placeholderTextColor="#6b7280"
+              placeholder="My Attack API"
+              placeholderTextColor="#4a5568"
             />
 
+            <Text style={styles.label}>API URL</Text>
             <TextInput
               style={[styles.input, styles.textArea]}
               value={apiUrl}
               onChangeText={setApiUrl}
-              placeholder="URL de la API (usa [host], [port], [time], [method] como marcadores)"
-              placeholderTextColor="#6b7280"
+              placeholder="https://api.example.com/attack?host=[host]&port=[port]&time=[time]&method=[method]"
+              placeholderTextColor="#4a5568"
               multiline
             />
 
             <TouchableOpacity style={styles.modalButton} onPress={addAPI}>
-              <Text style={styles.modalButtonText}>Agregar API</Text>
+              <Text style={styles.modalButtonText}>Add API</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-      {/* Add Method Modal */}
       <Modal visible={showAddMethod} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Agregar Nuevo Método</Text>
+              <Text style={styles.modalTitle}>Add New Method</Text>
               <TouchableOpacity onPress={() => setShowAddMethod(false)}>
-                <Ionicons name="close" size={24} color="#fff" />
+                <Ionicons name="close-circle" size={28} color="#ff3366" />
               </TouchableOpacity>
             </View>
 
+            <Text style={styles.label}>Method Name</Text>
             <TextInput
               style={styles.input}
               value={methodName}
               onChangeText={setMethodName}
-              placeholder="Nombre del método (ej: httpbypass)"
-              placeholderTextColor="#6b7280"
+              placeholder="httpbypass, udpflood, etc."
+              placeholderTextColor="#4a5568"
             />
 
             <TouchableOpacity style={styles.modalButton} onPress={addMethod}>
-              <Text style={styles.modalButtonText}>Agregar Método</Text>
+              <Text style={styles.modalButtonText}>Add Method</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-      {/* Link API Modal */}
       <Modal visible={showLinkModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>
-                Vincular API a {selectedMethodForLink?.name}
+                Link API to {selectedMethodForLink?.name}
               </Text>
               <TouchableOpacity
                 onPress={() => {
@@ -422,7 +443,7 @@ export default function ConfigScreen() {
                   setSelectedApiId('');
                 }}
               >
-                <Ionicons name="close" size={24} color="#fff" />
+                <Ionicons name="close-circle" size={28} color="#00ff9d" />
               </TouchableOpacity>
             </View>
 
@@ -439,7 +460,7 @@ export default function ConfigScreen() {
                 >
                   <View style={styles.checkbox}>
                     {selectedApiId === item.id && (
-                      <Ionicons name="checkmark" size={18} color="#fff" />
+                      <Ionicons name="checkmark" size={18} color="#00ff9d" />
                     )}
                   </View>
                   <Text style={styles.apiItemText}>{item.name}</Text>
@@ -451,7 +472,7 @@ export default function ConfigScreen() {
               style={styles.modalButton}
               onPress={linkApiToMethod}
             >
-              <Text style={styles.modalButtonText}>Vincular API</Text>
+              <Text style={styles.modalButtonText}>Link API</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -463,25 +484,39 @@ export default function ConfigScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f172a',
+    backgroundColor: '#0a0e1a',
   },
   content: {
     padding: 16,
   },
+  header: {
+    alignItems: 'center',
+    paddingVertical: 24,
+    marginBottom: 16,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#00ff9d',
+    marginTop: 8,
+    letterSpacing: 2,
+  },
   initButton: {
-    backgroundColor: '#10b981',
+    backgroundColor: '#00ff9d',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 16,
     borderRadius: 12,
     marginBottom: 24,
-    gap: 12,
+    gap: 10,
   },
   initButtonText: {
-    color: '#fff',
-    fontSize: 16,
+    color: '#000',
+    fontSize: 14,
     fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   section: {
     marginBottom: 24,
@@ -495,43 +530,45 @@ const styles = StyleSheet.create({
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginLeft: 12,
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#e5e7eb',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   addButton: {
-    backgroundColor: '#0f3460',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 4,
   },
   card: {
-    backgroundColor: '#1e293b',
+    backgroundColor: '#151b2e',
     borderRadius: 12,
     padding: 16,
     marginBottom: 8,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#1f2937',
   },
   cardContent: {
     flex: 1,
   },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 6,
+  },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     color: '#fff',
-    marginBottom: 4,
   },
   cardSubtitle: {
     fontSize: 12,
-    color: '#94a3b8',
+    color: '#8b92a8',
   },
   cardActions: {
     flexDirection: 'row',
@@ -540,33 +577,45 @@ const styles = StyleSheet.create({
   linkButton: {
     padding: 4,
   },
+  deleteButton: {
+    padding: 4,
+  },
+  emptyBox: {
+    alignItems: 'center',
+    padding: 32,
+    backgroundColor: '#151b2e',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#1f2937',
+  },
   emptyText: {
-    color: '#6b7280',
-    textAlign: 'center',
-    padding: 20,
-    fontStyle: 'italic',
+    color: '#8b92a8',
+    fontSize: 14,
+    marginTop: 8,
   },
   settingCard: {
-    backgroundColor: '#1e293b',
+    backgroundColor: '#151b2e',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#1f2937',
   },
   label: {
-    color: '#94a3b8',
-    fontSize: 14,
+    color: '#8b92a8',
+    fontSize: 13,
     fontWeight: '600',
     marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   input: {
-    backgroundColor: '#0f172a',
+    backgroundColor: '#0a0e1a',
     borderWidth: 1,
-    borderColor: '#334155',
-    borderRadius: 12,
+    borderColor: '#1f2937',
+    borderRadius: 10,
     padding: 14,
     color: '#fff',
-    fontSize: 16,
+    fontSize: 15,
     marginBottom: 12,
   },
   textArea: {
@@ -574,27 +623,34 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   saveButton: {
-    backgroundColor: '#10b981',
-    padding: 14,
-    borderRadius: 12,
+    backgroundColor: '#00ff9d',
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    padding: 14,
+    borderRadius: 10,
+    gap: 8,
   },
   saveButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: '#000',
+    fontSize: 14,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#1e293b',
+    backgroundColor: '#151b2e',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
     maxHeight: '80%',
+    borderTopWidth: 2,
+    borderColor: '#00ff9d',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -603,48 +659,52 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#fff',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   modalButton: {
-    backgroundColor: '#00d4ff',
+    backgroundColor: '#00ff9d',
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 10,
     alignItems: 'center',
     marginTop: 8,
   },
   modalButtonText: {
     color: '#000',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   apiItem: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: '#0f172a',
-    borderRadius: 8,
+    backgroundColor: '#0a0e1a',
+    borderRadius: 10,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#1f2937',
   },
   apiItemSelected: {
-    borderColor: '#00d4ff',
-    backgroundColor: '#0f3460',
+    borderColor: '#00ff9d',
+    backgroundColor: 'rgba(0, 255, 157, 0.1)',
   },
   checkbox: {
     width: 24,
     height: 24,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: '#00d4ff',
+    borderColor: '#00ff9d',
     marginRight: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
   apiItemText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 15,
   },
 });

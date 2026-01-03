@@ -48,19 +48,19 @@ export default function HistoryScreen() {
 
   const clearHistory = async () => {
     Alert.alert(
-      'Limpiar Historial',
-      '¿Estás seguro de eliminar todo el historial?',
+      'Clear History',
+      'Are you sure you want to delete all history?',
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Limpiar',
+          text: 'Clear',
           style: 'destructive',
           onPress: async () => {
             try {
               await AsyncStorage.setItem('history', JSON.stringify([]));
               setHistory([]);
             } catch (error) {
-              Alert.alert('Error', 'No se pudo limpiar el historial');
+              Alert.alert('Error', 'Failed to clear history');
             }
           },
         },
@@ -70,14 +70,19 @@ export default function HistoryScreen() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString('es-ES');
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   const renderItem = ({ item }: { item: AttackHistory }) => (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <View style={styles.hostInfo}>
-          <Ionicons name="globe" size={20} color="#00d4ff" />
+          <Ionicons name="globe" size={18} color="#00ff9d" />
           <Text style={styles.host}>{item.host}</Text>
         </View>
         <View
@@ -87,33 +92,33 @@ export default function HistoryScreen() {
           ]}
         >
           <Text style={styles.statusText}>
-            {item.status === 'sent' ? 'ENVIADO' : 'FALLIDO'}
+            {item.status === 'sent' ? 'SENT' : 'FAILED'}
           </Text>
         </View>
       </View>
 
       <View style={styles.cardDetails}>
         <View style={styles.detailRow}>
-          <Ionicons name="link" size={16} color="#94a3b8" />
-          <Text style={styles.detailLabel}>Puerto:</Text>
+          <Ionicons name="link" size={14} color="#8b92a8" />
+          <Text style={styles.detailLabel}>Port:</Text>
           <Text style={styles.detailValue}>{item.port}</Text>
         </View>
 
         <View style={styles.detailRow}>
-          <Ionicons name="time" size={16} color="#94a3b8" />
-          <Text style={styles.detailLabel}>Duración:</Text>
+          <Ionicons name="time" size={14} color="#8b92a8" />
+          <Text style={styles.detailLabel}>Duration:</Text>
           <Text style={styles.detailValue}>{item.time}s</Text>
         </View>
 
         <View style={styles.detailRow}>
-          <Ionicons name="hammer" size={16} color="#94a3b8" />
-          <Text style={styles.detailLabel}>Método:</Text>
+          <Ionicons name="flash" size={14} color="#8b92a8" />
+          <Text style={styles.detailLabel}>Method:</Text>
           <Text style={styles.detailValue}>{item.method}</Text>
         </View>
       </View>
 
       <View style={styles.cardFooter}>
-        <Ionicons name="calendar" size={14} color="#6b7280" />
+        <Ionicons name="calendar" size={12} color="#4a5568" />
         <Text style={styles.timestamp}>{formatDate(item.timestamp)}</Text>
       </View>
     </View>
@@ -121,12 +126,13 @@ export default function HistoryScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Ionicons name="time" size={28} color="#00d4ff" />
+          <Ionicons name="list" size={32} color="#00ff9d" />
           <View>
-            <Text style={styles.headerTitle}>Historial de Ataques</Text>
-            <Text style={styles.headerSubtitle}>{history.length} registros</Text>
+            <Text style={styles.headerTitle}>ATTACK HISTORY</Text>
+            <Text style={styles.headerSubtitle}>{history.length} entries</Text>
           </View>
         </View>
         {history.length > 0 && (
@@ -145,15 +151,16 @@ export default function HistoryScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#00d4ff"
+            tintColor="#00ff9d"
+            colors={['#00ff9d']}
           />
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Ionicons name="document-text-outline" size={64} color="#334155" />
-            <Text style={styles.emptyText}>No hay historial aún</Text>
+            <Ionicons name="document-text-outline" size={64} color="#1f2937" />
+            <Text style={styles.emptyText}>No attack history yet</Text>
             <Text style={styles.emptySubtext}>
-              Lanza ataques para verlos aquí
+              Launch attacks to see them here
             </Text>
           </View>
         }
@@ -165,16 +172,16 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f172a',
+    backgroundColor: '#0a0e1a',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#1e293b',
+    backgroundColor: '#151b2e',
     borderBottomWidth: 1,
-    borderBottomColor: '#334155',
+    borderBottomColor: '#1f2937',
   },
   headerLeft: {
     flexDirection: 'row',
@@ -182,16 +189,18 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#00ff9d',
+    letterSpacing: 1.5,
   },
   headerSubtitle: {
     fontSize: 12,
-    color: '#94a3b8',
+    color: '#8b92a8',
+    marginTop: 2,
   },
   clearButton: {
-    backgroundColor: '#ef4444',
+    backgroundColor: '#ff3366',
     width: 40,
     height: 40,
     borderRadius: 20,
@@ -202,12 +211,12 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   card: {
-    backgroundColor: '#1e293b',
-    borderRadius: 16,
+    backgroundColor: '#151b2e',
+    borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#1f2937',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -221,25 +230,30 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   host: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     color: '#fff',
   },
   statusBadge: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 10,
   },
   statusSent: {
-    backgroundColor: '#10b981',
+    backgroundColor: 'rgba(0, 255, 157, 0.2)',
+    borderWidth: 1,
+    borderColor: '#00ff9d',
   },
   statusFailed: {
-    backgroundColor: '#ef4444',
+    backgroundColor: 'rgba(255, 51, 102, 0.2)',
+    borderWidth: 1,
+    borderColor: '#ff3366',
   },
   statusText: {
     color: '#fff',
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
   cardDetails: {
     gap: 8,
@@ -248,15 +262,15 @@ const styles = StyleSheet.create({
   detailRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
   },
   detailLabel: {
-    color: '#94a3b8',
-    fontSize: 14,
+    color: '#8b92a8',
+    fontSize: 13,
   },
   detailValue: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
   },
   cardFooter: {
@@ -265,25 +279,25 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#334155',
+    borderTopColor: '#1f2937',
   },
   timestamp: {
-    color: '#6b7280',
-    fontSize: 12,
+    color: '#4a5568',
+    fontSize: 11,
   },
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 60,
+    paddingVertical: 80,
   },
   emptyText: {
-    color: '#94a3b8',
+    color: '#8b92a8',
     fontSize: 18,
     fontWeight: '600',
     marginTop: 16,
   },
   emptySubtext: {
-    color: '#6b7280',
+    color: '#4a5568',
     fontSize: 14,
     marginTop: 8,
   },
