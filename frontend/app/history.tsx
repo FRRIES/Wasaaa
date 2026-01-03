@@ -8,7 +8,7 @@ import {
   RefreshControl,
   Alert,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { ListBullets, Globe, Link as LinkIcon, Clock, Lightning, Calendar, FileDashed, Trash } from 'phosphor-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface AttackHistory {
