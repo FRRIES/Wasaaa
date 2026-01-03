@@ -16,6 +16,7 @@ import {
 import { Shield, Target, Lightning, CloudLightning, CheckCircle, XCircle, WarningCircle } from 'phosphor-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { useFocusEffect } from 'expo-router';
 
 interface Method {
   id: string;
