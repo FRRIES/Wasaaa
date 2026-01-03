@@ -238,14 +238,14 @@ export default function ConfigScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Header */}
       <View style={styles.header}>
-        <Ionicons name="construct" size={32} color="#00ff9d" />
+        <Wrench size={32} color="#00ff9d" />
         <Text style={styles.headerTitle}>CONFIGURATION</Text>
       </View>
 
       {/* Initialize Button */}
       {apis.length === 0 && methods.length === 0 && (
         <TouchableOpacity style={styles.initButton} onPress={initializeDefaultData}>
-          <Ionicons name="download" size={20} color="#000" />
+          <DownloadSimple size={20} color="#000" />
           <Text style={styles.initButtonText}>Load Default Config</Text>
         </TouchableOpacity>
       )}
@@ -254,14 +254,14 @@ export default function ConfigScreen() {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <View style={styles.headerLeft}>
-            <Ionicons name="cloud" size={20} color="#00ff9d" />
+            <Cloud size={20} color="#00ff9d" />
             <Text style={styles.sectionTitle}>API Endpoints</Text>
           </View>
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => setShowAddAPI(true)}
           >
-            <Ionicons name="add-circle" size={28} color="#00ff9d" />
+            <PlusCircle size={28} color="#00ff9d" />
           </TouchableOpacity>
         </View>
 
@@ -294,14 +294,14 @@ export default function ConfigScreen() {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <View style={styles.headerLeft}>
-            <Ionicons name="flash" size={20} color="#ff3366" />
+            <Lightning size={20} color="#ff3366" />
             <Text style={styles.sectionTitle}>Attack Methods</Text>
           </View>
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => setShowAddMethod(true)}
           >
-            <Ionicons name="add-circle" size={28} color="#ff3366" />
+            <PlusCircle size={28} color="#ff3366" />
           </TouchableOpacity>
         </View>
 
@@ -342,14 +342,14 @@ export default function ConfigScreen() {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <View style={styles.headerLeft}>
-            <Ionicons name="settings" size={20} color="#fbbf24" />
+            <Gear size={20} color="#fbbf24" />
             <Text style={styles.sectionTitle}>Settings</Text>
           </View>
         </View>
 
         <View style={styles.settingCard}>
           <View style={styles.labelRow}>
-            <Ionicons name="time" size={14} color="#8b92a8" />
+            <Gear size={14} color="#8b92a8" />
             <Text style={styles.label}>Max Time Allowed (seconds)</Text>
           </View>
           <TextInput
