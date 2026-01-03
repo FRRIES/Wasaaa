@@ -549,6 +549,12 @@ const styles = StyleSheet.create({
   inputGroup: {
     marginBottom: 16,
   },
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
   label: {
     color: '#8b92a8',
     fontSize: 13,
