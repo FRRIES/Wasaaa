@@ -13,7 +13,7 @@ import {
   Modal,
   FlatList,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Shield, Target, Lightning, CloudLightning, CheckCircle, XCircle, WarningCircle } from 'phosphor-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
@@ -229,7 +229,7 @@ export default function AttackPanel() {
       >
         {/* Header Logo */}
         <View style={styles.headerLogo}>
-          <Ionicons name="shield-half" size={48} color="#00ff9d" />
+          <Shield size={48} color="#00ff9d" weight="duotone" />
           <Text style={styles.logoText}>STRESS TESTER</Text>
           <Text style={styles.logoSubtext}>Professional Attack Tool</Text>
         </View>
@@ -237,7 +237,7 @@ export default function AttackPanel() {
         {/* Target Status Check */}
         <View style={styles.statusPanel}>
           <View style={styles.panelHeader}>
-            <Ionicons name="scan" size={20} color="#00ff9d" />
+            <Target size={20} color="#00ff9d" weight="duotone" />
             <Text style={styles.panelTitle}>Target Status</Text>
           </View>
 
@@ -250,7 +250,7 @@ export default function AttackPanel() {
               <ActivityIndicator color="#000" />
             ) : (
               <>
-                <Ionicons name="scan" size={18} color="#000" />
+                <Target size={18} color="#000" weight="bold" />
                 <Text style={styles.checkButtonText}>Scan Target</Text>
               </>
             )}
@@ -265,17 +265,13 @@ export default function AttackPanel() {
                 targetStatus.status === 'error' && styles.statusError,
               ]}
             >
-              <Ionicons
-                name={
-                  targetStatus.status === 'alive'
-                    ? 'checkmark-circle'
-                    : targetStatus.status === 'unreachable'
-                    ? 'close-circle'
-                    : 'alert-circle'
-                }
-                size={20}
-                color="#fff"
-              />
+              {targetStatus.status === 'alive' ? (
+                <CheckCircle size={20} color="#fff" weight="fill" />
+              ) : targetStatus.status === 'unreachable' ? (
+                <XCircle size={20} color="#fff" weight="fill" />
+              ) : (
+                <WarningCircle size={20} color="#fff" weight="fill" />
+              )}
               <Text style={styles.statusText}>
                 {targetStatus.status === 'alive'
                   ? 'Target Online'
@@ -290,13 +286,13 @@ export default function AttackPanel() {
         {/* Attack Configuration */}
         <View style={styles.attackPanel}>
           <View style={styles.panelHeader}>
-            <Ionicons name="flash" size={20} color="#ff3366" />
+            <Lightning size={20} color="#ff3366" weight="duotone" />
             <Text style={styles.panelTitle}>Attack Configuration</Text>
           </View>
 
           <View style={styles.inputGroup}>
             <View style={styles.labelRow}>
-              <Ionicons name="globe-outline" size={14} color="#8b92a8" />
+              <Target size={14} color="#8b92a8" />
               <Text style={styles.label}>Target Host</Text>
             </View>
             <TextInput
@@ -312,7 +308,7 @@ export default function AttackPanel() {
           <View style={styles.row}>
             <View style={[styles.inputGroup, styles.halfWidth]}>
               <View style={styles.labelRow}>
-                <Ionicons name="link-outline" size={14} color="#8b92a8" />
+                <Target size={14} color="#8b92a8" />
                 <Text style={styles.label}>Port</Text>
               </View>
               <TextInput
@@ -327,7 +323,7 @@ export default function AttackPanel() {
 
             <View style={[styles.inputGroup, styles.halfWidth]}>
               <View style={styles.labelRow}>
-                <Ionicons name="time-outline" size={14} color="#8b92a8" />
+                <Target size={14} color="#8b92a8" />
                 <Text style={styles.label}>Time (s)</Text>
               </View>
               <TextInput
@@ -343,7 +339,7 @@ export default function AttackPanel() {
 
           <View style={styles.inputGroup}>
             <View style={styles.labelRow}>
-              <Ionicons name="hammer-outline" size={14} color="#8b92a8" />
+              <Lightning size={14} color="#8b92a8" />
               <Text style={styles.label}>Attack Method</Text>
             </View>
             <TouchableOpacity
@@ -353,7 +349,7 @@ export default function AttackPanel() {
               <Text style={styles.pickerButtonText}>
                 {selectedMethod || 'Select Method'}
               </Text>
-              <Ionicons name="chevron-down" size={20} color="#00ff9d" />
+              <Lightning size={20} color="#00ff9d" weight="duotone" />
             </TouchableOpacity>
           </View>
 
@@ -369,7 +365,7 @@ export default function AttackPanel() {
               <ActivityIndicator color="#000" />
             ) : (
               <>
-                <Ionicons name="nuclear" size={24} color="#000" />
+                <CloudLightning size={24} color="#000" weight="duotone" />
                 <Text style={styles.attackButtonText}>LAUNCH ATTACK</Text>
               </>
             )}
@@ -377,14 +373,13 @@ export default function AttackPanel() {
 
           {attackSent && (
             <View style={styles.successBox}>
-              <Ionicons name="checkmark-circle" size={28} color="#000" />
+              <CheckCircle size={28} color="#000" weight="fill" />
               <Text style={styles.successText}>Attack Sent Successfully</Text>
             </View>
           )}
         </View>
 
         <View style={styles.infoBox}>
-          <Ionicons name="information-circle" size={16} color="#8b92a8" />
           <Text style={styles.infoText}>
             Max time: {maxAllowedTime}s | Configure in Settings
           </Text>
@@ -397,7 +392,7 @@ export default function AttackPanel() {
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Select Attack Method</Text>
                 <TouchableOpacity onPress={() => setShowMethodPicker(false)}>
-                  <Ionicons name="close-circle" size={28} color="#00ff9d" />
+                  <XCircle size={28} color="#00ff9d" weight="fill" />
                 </TouchableOpacity>
               </View>
 
@@ -416,17 +411,17 @@ export default function AttackPanel() {
                     }}
                   >
                     <View style={styles.methodItemContent}>
-                      <Ionicons name="flash" size={20} color={selectedMethod === item.name ? '#00ff9d' : '#8b92a8'} />
+                      <Lightning size={20} color={selectedMethod === item.name ? '#00ff9d' : '#8b92a8'} weight="duotone" />
                       <Text style={styles.methodItemText}>{item.name}</Text>
                     </View>
                     {selectedMethod === item.name && (
-                      <Ionicons name="checkmark-circle" size={24} color="#00ff9d" />
+                      <CheckCircle size={24} color="#00ff9d" weight="fill" />
                     )}
                   </TouchableOpacity>
                 )}
                 ListEmptyComponent={
                   <View style={styles.emptyContainer}>
-                    <Ionicons name="alert-circle-outline" size={48} color="#4a5568" />
+                    <WarningCircle size={48} color="#4a5568" weight="duotone" />
                     <Text style={styles.emptyText}>
                       No methods configured
                     </Text>
@@ -559,7 +554,6 @@ const styles = StyleSheet.create({
     color: '#8b92a8',
     fontSize: 13,
     fontWeight: '600',
-    marginBottom: 8,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
