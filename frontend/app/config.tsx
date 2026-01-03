@@ -10,7 +10,7 @@ import {
   Modal,
   FlatList,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Wrench, Cloud, Lightning, Gear, DownloadSimple, PlusCircle, Trash, Link, CheckCircle, XCircle } from 'phosphor-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface APIConfig {
