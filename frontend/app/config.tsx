@@ -430,7 +430,7 @@ export default function ConfigScreen() {
         </View>
       </Modal>
 
-      <Modal visible={showLinkModal} animationType="slide" transparent>
+      <Modal visible={showLinkModal} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
