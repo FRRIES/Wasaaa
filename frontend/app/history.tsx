@@ -9,9 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import axios from 'axios';
-
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface AttackHistory {
   id: string;
@@ -33,8 +31,10 @@ export default function HistoryScreen() {
 
   const loadHistory = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/history`);
-      setHistory(response.data);
+      const historyData = await AsyncStorage.getItem('history');
+      if (historyData) {
+        setHistory(JSON.parse(historyData));
+      }
     } catch (error) {
       console.error('Error loading history:', error);
     }
@@ -48,19 +48,19 @@ export default function HistoryScreen() {
 
   const clearHistory = async () => {
     Alert.alert(
-      'Clear History',
-      'Are you sure you want to clear all history?',
+      'Limpiar Historial',
+      '¿Estás seguro de eliminar todo el historial?',
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: 'Cancelar', style: 'cancel' },
         {
-          text: 'Clear',
+          text: 'Limpiar',
           style: 'destructive',
           onPress: async () => {
             try {
-              await axios.delete(`${API_URL}/api/history`);
-              loadHistory();
+              await AsyncStorage.setItem('history', JSON.stringify([]));
+              setHistory([]);
             } catch (error) {
-              Alert.alert('Error', 'Failed to clear history');
+              Alert.alert('Error', 'No se pudo limpiar el historial');
             }
           },
         },
@@ -70,7 +70,7 @@ export default function HistoryScreen() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString();
+    return date.toLocaleString('es-ES');
   };
 
   const renderItem = ({ item }: { item: AttackHistory }) => (
@@ -86,26 +86,28 @@ export default function HistoryScreen() {
             item.status === 'sent' ? styles.statusSent : styles.statusFailed,
           ]}
         >
-          <Text style={styles.statusText}>{item.status.toUpperCase()}</Text>
+          <Text style={styles.statusText}>
+            {item.status === 'sent' ? 'ENVIADO' : 'FALLIDO'}
+          </Text>
         </View>
       </View>
 
       <View style={styles.cardDetails}>
         <View style={styles.detailRow}>
           <Ionicons name="link" size={16} color="#94a3b8" />
-          <Text style={styles.detailLabel}>Port:</Text>
+          <Text style={styles.detailLabel}>Puerto:</Text>
           <Text style={styles.detailValue}>{item.port}</Text>
         </View>
 
         <View style={styles.detailRow}>
           <Ionicons name="time" size={16} color="#94a3b8" />
-          <Text style={styles.detailLabel}>Duration:</Text>
+          <Text style={styles.detailLabel}>Duración:</Text>
           <Text style={styles.detailValue}>{item.time}s</Text>
         </View>
 
         <View style={styles.detailRow}>
           <Ionicons name="hammer" size={16} color="#94a3b8" />
-          <Text style={styles.detailLabel}>Method:</Text>
+          <Text style={styles.detailLabel}>Método:</Text>
           <Text style={styles.detailValue}>{item.method}</Text>
         </View>
       </View>
@@ -123,8 +125,8 @@ export default function HistoryScreen() {
         <View style={styles.headerLeft}>
           <Ionicons name="time" size={28} color="#00d4ff" />
           <View>
-            <Text style={styles.headerTitle}>Attack History</Text>
-            <Text style={styles.headerSubtitle}>{history.length} entries</Text>
+            <Text style={styles.headerTitle}>Historial de Ataques</Text>
+            <Text style={styles.headerSubtitle}>{history.length} registros</Text>
           </View>
         </View>
         {history.length > 0 && (
@@ -149,9 +151,9 @@ export default function HistoryScreen() {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Ionicons name="document-text-outline" size={64} color="#334155" />
-            <Text style={styles.emptyText}>No attack history yet</Text>
+            <Text style={styles.emptyText}>No hay historial aún</Text>
             <Text style={styles.emptySubtext}>
-              Launch attacks to see them here
+              Lanza ataques para verlos aquí
             </Text>
           </View>
         }

