@@ -295,9 +295,10 @@ export default function AttackPanel() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>
-              <Ionicons name="globe-outline" size={14} color="#8b92a8" /> Target Host
-            </Text>
+            <View style={styles.labelRow}>
+              <Ionicons name="globe-outline" size={14} color="#8b92a8" />
+              <Text style={styles.label}>Target Host</Text>
+            </View>
             <TextInput
               style={styles.input}
               value={host}
