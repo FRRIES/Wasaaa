@@ -377,6 +377,47 @@ export default function AttackPanel() {
         <Text style={styles.maxTimeNote}>
           Tiempo máximo permitido: {maxTimeAllowed} segundos
         </Text>
+
+        {/* Method Picker Modal */}
+        <Modal visible={showMethodPicker} animationType="slide" transparent>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Seleccionar Método</Text>
+                <TouchableOpacity onPress={() => setShowMethodPicker(false)}>
+                  <Ionicons name="close" size={24} color="#fff" />
+                </TouchableOpacity>
+              </View>
+
+              <FlatList
+                data={methods}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={[
+                      styles.methodItem,
+                      selectedMethod === item.name && styles.methodItemSelected,
+                    ]}
+                    onPress={() => {
+                      setSelectedMethod(item.name);
+                      setShowMethodPicker(false);
+                    }}
+                  >
+                    <Text style={styles.methodItemText}>{item.name}</Text>
+                    {selectedMethod === item.name && (
+                      <Ionicons name="checkmark" size={24} color="#00d4ff" />
+                    )}
+                  </TouchableOpacity>
+                )}
+                ListEmptyComponent={
+                  <Text style={styles.emptyText}>
+                    No hay métodos configurados. Ve a Config para agregarlos.
+                  </Text>
+                }
+              />
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
     </KeyboardAvoidingView>
   );
