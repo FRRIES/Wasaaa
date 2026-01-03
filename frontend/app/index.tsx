@@ -237,7 +237,7 @@ export default function AttackPanel() {
         {/* Target Status Check */}
         <View style={styles.statusPanel}>
           <View style={styles.panelHeader}>
-            <Ionicons name="radar" size={20} color="#00ff9d" />
+            <Ionicons name="scan" size={20} color="#00ff9d" />
             <Text style={styles.panelTitle}>Target Status</Text>
           </View>
 
