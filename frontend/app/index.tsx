@@ -39,6 +39,12 @@ export default function AttackPanel() {
   const [checkingTarget, setCheckingTarget] = useState(false);
   const [targetStatus, setTargetStatus] = useState<any>(null);
   const [attackSent, setAttackSent] = useState(false);
+
+  // Load data when screen is focused
+  useEffect(() => {
+    const interval = setInterval(loadData, 1000);
+    return () => clearInterval(interval);
+  }, []);
   const [maxTimeAllowed, setMaxTimeAllowed] = useState(300);
 
   useEffect(() => {
