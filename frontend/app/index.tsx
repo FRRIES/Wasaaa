@@ -311,9 +311,10 @@ export default function AttackPanel() {
 
           <View style={styles.row}>
             <View style={[styles.inputGroup, styles.halfWidth]}>
-              <Text style={styles.label}>
-                <Ionicons name="link-outline" size={14} color="#8b92a8" /> Port
-              </Text>
+              <View style={styles.labelRow}>
+                <Ionicons name="link-outline" size={14} color="#8b92a8" />
+                <Text style={styles.label}>Port</Text>
+              </View>
               <TextInput
                 style={styles.input}
                 value={port}
@@ -325,9 +326,10 @@ export default function AttackPanel() {
             </View>
 
             <View style={[styles.inputGroup, styles.halfWidth]}>
-              <Text style={styles.label}>
-                <Ionicons name="time-outline" size={14} color="#8b92a8" /> Time (s)
-              </Text>
+              <View style={styles.labelRow}>
+                <Ionicons name="time-outline" size={14} color="#8b92a8" />
+                <Text style={styles.label}>Time (s)</Text>
+              </View>
               <TextInput
                 style={styles.input}
                 value={timeValue}
