@@ -1,0 +1,17 @@
+diff --git a/frontend/app/index.tsx b/frontend/app/index.tsx
+index af48d8e..e705606 100644
+--- a/frontend/app/index.tsx
++++ b/frontend/app/index.tsx
+@@ -549,6 +549,12 @@ const styles = StyleSheet.create({
+   inputGroup: {
+     marginBottom: 16,
+   },
++  labelRow: {
++    flexDirection: 'row',
++    alignItems: 'center',
++    gap: 6,
++    marginBottom: 8,
++  },
+   label: {
+     color: '#8b92a8',
+     fontSize: 13,
