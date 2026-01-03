@@ -404,7 +404,7 @@ export default function ConfigScreen() {
         </View>
       </Modal>
 
-      <Modal visible={showAddMethod} animationType="slide" transparent>
+      <Modal visible={showAddMethod} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
