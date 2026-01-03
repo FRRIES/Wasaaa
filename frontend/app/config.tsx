@@ -394,7 +394,7 @@ export default function ConfigScreen() {
               onChangeText={setApiUrl}
               placeholder="https://api.example.com/attack?host=[host]&port=[port]&time=[time]&method=[method]"
               placeholderTextColor="#4a5568"
-              multiline
+              multiline={true}
             />
 
             <TouchableOpacity style={styles.modalButton} onPress={addAPI}>
