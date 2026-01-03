@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Lightning, Wrench, ListBullets } from 'phosphor-react-native';
 
 export default function TabLayout() {
   return (
@@ -37,8 +37,8 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'ATTACK',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="flash" size={size + 2} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Lightning size={size + 2} color={color} weight={focused ? 'duotone' : 'regular'} />
           ),
         }}
       />
@@ -46,8 +46,8 @@ export default function TabLayout() {
         name="config"
         options={{
           title: 'CONFIG',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="construct" size={size + 2} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Wrench size={size + 2} color={color} weight={focused ? 'duotone' : 'regular'} />
           ),
         }}
       />
@@ -55,8 +55,8 @@ export default function TabLayout() {
         name="history"
         options={{
           title: 'HISTORY',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="list" size={size + 2} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <ListBullets size={size + 2} color={color} weight={focused ? 'duotone' : 'regular'} />
           ),
         }}
       />
