@@ -166,6 +166,8 @@ export default function ConfigScreen() {
     if (!selectedMethodForLink || !selectedApiId) return;
 
     try {
+      const selectedApi = apis.find(a => a.id === selectedApiId);
+      
       const updatedMethods = methods.map((m) =>
         m.id === selectedMethodForLink.id ? { ...m, apiId: selectedApiId } : m
       );
@@ -176,7 +178,13 @@ export default function ConfigScreen() {
       setShowLinkModal(false);
       setSelectedMethodForLink(null);
       setSelectedApiId('');
-      Alert.alert('Success', 'API linked successfully');
+      
+      // Show success alert with details
+      Alert.alert(
+        '✅ API Linked Successfully!', 
+        `Method "${selectedMethodForLink.name}" is now linked to API "${selectedApi?.name || 'Unknown'}"\n\nYou can now use this method in the Attack panel.`,
+        [{ text: 'OK', style: 'default' }]
+      );
     } catch (error) {
       Alert.alert('Error', 'Failed to link API');
     }
