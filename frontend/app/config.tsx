@@ -332,7 +332,7 @@ export default function ConfigScreen() {
 
         {methods.length === 0 && (
           <View style={styles.emptyBox}>
-            <Ionicons name="hammer" size={40} color="#4a5568" />
+            <Lightning size={40} color="#4a5568" weight="duotone" />
             <Text style={styles.emptyText}>No methods configured</Text>
           </View>
         )}
