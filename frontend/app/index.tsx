@@ -521,16 +521,19 @@ const styles = StyleSheet.create({
   halfWidth: {
     flex: 1,
   },
-  pickerContainer: {
+  pickerButton: {
     backgroundColor: '#0f172a',
     borderWidth: 1,
     borderColor: '#334155',
     borderRadius: 12,
-    overflow: 'hidden',
+    padding: 14,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  picker: {
+  pickerButtonText: {
     color: '#fff',
-    height: 50,
+    fontSize: 16,
   },
   attackButton: {
     backgroundColor: '#ff6b6b',
