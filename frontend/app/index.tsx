@@ -41,6 +41,7 @@ export default function AttackPanel() {
   const [targetStatus, setTargetStatus] = useState<any>(null);
   const [attackSent, setAttackSent] = useState(false);
   const [maxTimeAllowed, setMaxTimeAllowed] = useState(300);
+  const [showMethodPicker, setShowMethodPicker] = useState(false);
 
   useEffect(() => {
     loadData();
