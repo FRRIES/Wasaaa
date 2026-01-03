@@ -348,9 +348,10 @@ export default function ConfigScreen() {
         </View>
 
         <View style={styles.settingCard}>
-          <Text style={styles.label}>
-            <Ionicons name="time" size={14} color="#8b92a8" /> Max Time Allowed (seconds)
-          </Text>
+          <View style={styles.labelRow}>
+            <Ionicons name="time" size={14} color="#8b92a8" />
+            <Text style={styles.label}>Max Time Allowed (seconds)</Text>
+          </View>
           <TextInput
             style={styles.input}
             value={maxTime}
