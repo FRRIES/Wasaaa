@@ -82,7 +82,7 @@ export default function HistoryScreen() {
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <View style={styles.hostInfo}>
-          <Ionicons name="globe" size={18} color="#00ff9d" />
+          <Globe size={18} color="#00ff9d" />
           <Text style={styles.host}>{item.host}</Text>
         </View>
         <View
@@ -99,26 +99,26 @@ export default function HistoryScreen() {
 
       <View style={styles.cardDetails}>
         <View style={styles.detailRow}>
-          <Ionicons name="link" size={14} color="#8b92a8" />
+          <LinkIcon size={14} color="#8b92a8" />
           <Text style={styles.detailLabel}>Port:</Text>
           <Text style={styles.detailValue}>{item.port}</Text>
         </View>
 
         <View style={styles.detailRow}>
-          <Ionicons name="time" size={14} color="#8b92a8" />
+          <Clock size={14} color="#8b92a8" />
           <Text style={styles.detailLabel}>Duration:</Text>
           <Text style={styles.detailValue}>{item.time}s</Text>
         </View>
 
         <View style={styles.detailRow}>
-          <Ionicons name="flash" size={14} color="#8b92a8" />
+          <Lightning size={14} color="#8b92a8" />
           <Text style={styles.detailLabel}>Method:</Text>
           <Text style={styles.detailValue}>{item.method}</Text>
         </View>
       </View>
 
       <View style={styles.cardFooter}>
-        <Ionicons name="calendar" size={12} color="#4a5568" />
+        <Calendar size={12} color="#4a5568" />
         <Text style={styles.timestamp}>{formatDate(item.timestamp)}</Text>
       </View>
     </View>
@@ -129,7 +129,7 @@ export default function HistoryScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Ionicons name="list" size={32} color="#00ff9d" />
+          <ListBullets size={32} color="#00ff9d" />
           <View>
             <Text style={styles.headerTitle}>ATTACK HISTORY</Text>
             <Text style={styles.headerSubtitle}>{history.length} entries</Text>
@@ -137,7 +137,7 @@ export default function HistoryScreen() {
         </View>
         {history.length > 0 && (
           <TouchableOpacity style={styles.clearButton} onPress={clearHistory}>
-            <Ionicons name="trash" size={20} color="#fff" />
+            <Trash size={20} color="#fff" />
           </TouchableOpacity>
         )}
       </View>
@@ -157,7 +157,7 @@ export default function HistoryScreen() {
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Ionicons name="document-text-outline" size={64} color="#1f2937" />
+            <FileDashed size={64} color="#1f2937" />
             <Text style={styles.emptyText}>No attack history yet</Text>
             <Text style={styles.emptySubtext}>
               Launch attacks to see them here
