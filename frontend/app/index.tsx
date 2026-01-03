@@ -46,11 +46,6 @@ export default function AttackPanel() {
   useEffect(() => {
     loadData();
   }, []);
-  const [maxTimeAllowed, setMaxTimeAllowed] = useState(300);
-
-  useEffect(() => {
-    loadData();
-  }, []);
 
   const loadData = async () => {
     try {
