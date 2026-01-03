@@ -30,6 +30,7 @@ interface APIConfig {
 }
 
 export default function AttackPanel() {
+  // State declarations
   const [host, setHost] = useState('');
   const [port, setPort] = useState('80');
   const [time, setTime] = useState('60');
