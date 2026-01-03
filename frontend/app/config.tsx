@@ -136,7 +136,12 @@ export default function ConfigScreen() {
 
       setMethodName('');
       setShowAddMethod(false);
-      Alert.alert('Success', 'Method added successfully');
+      
+      Alert.alert(
+        '✅ Method Added Successfully!', 
+        `Method "${methodName}" has been added and linked to "${apis[0].name}".\n\nYou can now use it in the Attack panel!`,
+        [{ text: 'OK', style: 'default' }]
+      );
     } catch (error) {
       Alert.alert('Error', 'Failed to add method');
     }
