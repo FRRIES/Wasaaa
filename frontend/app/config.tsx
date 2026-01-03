@@ -269,7 +269,7 @@ export default function ConfigScreen() {
           <View key={api.id} style={styles.card}>
             <View style={styles.cardContent}>
               <View style={styles.cardHeader}>
-                <Ionicons name="server" size={18} color="#00ff9d" />
+                <Cloud size={18} color="#00ff9d" />
                 <Text style={styles.cardTitle}>{api.name}</Text>
               </View>
               <Text style={styles.cardSubtitle} numberOfLines={2}>
@@ -277,7 +277,7 @@ export default function ConfigScreen() {
               </Text>
             </View>
             <TouchableOpacity onPress={() => deleteAPI(api.id)} style={styles.deleteButton}>
-              <Ionicons name="trash" size={20} color="#ff3366" />
+              <Trash size={20} color="#ff3366" />
             </TouchableOpacity>
           </View>
         ))}
@@ -309,7 +309,7 @@ export default function ConfigScreen() {
           <View key={method.id} style={styles.card}>
             <View style={styles.cardContent}>
               <View style={styles.cardHeader}>
-                <Ionicons name="nuclear" size={18} color="#ff3366" />
+                <Lightning size={18} color="#ff3366" />
                 <Text style={styles.cardTitle}>{method.name}</Text>
               </View>
               <Text style={styles.cardSubtitle}>
@@ -321,10 +321,10 @@ export default function ConfigScreen() {
                 style={styles.linkButton}
                 onPress={() => openLinkModal(method)}
               >
-                <Ionicons name="link" size={20} color="#00ff9d" />
+                <Link size={20} color="#00ff9d" />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => deleteMethod(method.id)} style={styles.deleteButton}>
-                <Ionicons name="trash" size={20} color="#ff3366" />
+                <Trash size={20} color="#ff3366" />
               </TouchableOpacity>
             </View>
           </View>
@@ -361,7 +361,7 @@ export default function ConfigScreen() {
             placeholderTextColor="#4a5568"
           />
           <TouchableOpacity style={styles.saveButton} onPress={updateMaxTime}>
-            <Ionicons name="checkmark-circle" size={20} color="#000" />
+            <CheckCircle size={20} color="#000" />
             <Text style={styles.saveButtonText}>Save Settings</Text>
           </TouchableOpacity>
         </View>
@@ -374,7 +374,7 @@ export default function ConfigScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Add New API</Text>
               <TouchableOpacity onPress={() => setShowAddAPI(false)}>
-                <Ionicons name="close-circle" size={28} color="#00ff9d" />
+                <XCircle size={28} color="#00ff9d" />
               </TouchableOpacity>
             </View>
 
@@ -410,7 +410,7 @@ export default function ConfigScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Add New Method</Text>
               <TouchableOpacity onPress={() => setShowAddMethod(false)}>
-                <Ionicons name="close-circle" size={28} color="#ff3366" />
+                <XCircle size={28} color="#ff3366" />
               </TouchableOpacity>
             </View>
 
@@ -444,7 +444,7 @@ export default function ConfigScreen() {
                   setSelectedApiId('');
                 }}
               >
-                <Ionicons name="close-circle" size={28} color="#00ff9d" />
+                <XCircle size={28} color="#00ff9d" />
               </TouchableOpacity>
             </View>
 
@@ -461,7 +461,7 @@ export default function ConfigScreen() {
                 >
                   <View style={styles.checkbox}>
                     {selectedApiId === item.id && (
-                      <Ionicons name="checkmark" size={18} color="#00ff9d" />
+                      <CheckCircle size={18} color="#00ff9d" />
                     )}
                   </View>
                   <Text style={styles.apiItemText}>{item.name}</Text>
